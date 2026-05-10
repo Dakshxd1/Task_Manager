@@ -57,12 +57,14 @@ export const useStore = create<AppStore>((set, get) => ({
 
   addProject: async (p) => {
     const { user } = get()
-    const { data } = await createProject({ ...p, owner_id: user?.id })
-    if (data) {
-      set(s => ({ projects: [...s.projects, data] }))
-      await get().loadData()
-    }
-  },
+    const owner_id = p.owner_id || user?.id
+    const { data, error } = await createProject({ ...p, owner_id })
+    if (error) console.error('createProject error:', error)
+      if (data) {
+        set(s => ({ projects: [...s.projects, data] }))
+        await get().loadData()
+      }
+    },
 
   updateProject: async (id, u) => {
     await updateProjectDB(id, u)
@@ -148,8 +150,14 @@ export const useStore = create<AppStore>((set, get) => ({
 
   // ── LOAD ALL DATA FROM SUPABASE ──────────────────────────────
   loadData: async () => {
-    const [{ data: projects }, { data: tasks }, { data: members }] =
-      await Promise.all([getProjects(), getTasks(), getMembers()])
+    const [
+      { data: projects, error: e1 },
+      { data: tasks, error: e2 },
+      { data: members, error: e3 }
+    ] = await Promise.all([getProjects(), getTasks(), getMembers()])
+    if (e1) console.error('projects error:', e1)
+    if (e2) console.error('tasks error:', e2)
+    if (e3) console.error('members error:', e3)
     set({
       projects: projects ?? [],
       tasks:    tasks    ?? [],

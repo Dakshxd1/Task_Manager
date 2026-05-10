@@ -1,4 +1,3 @@
-# ⚡ TaskFlow — Premium Team Task Manager
 
 > A world-class, production-ready Team Task Manager SaaS built with Next.js 15, Framer Motion, Zustand, and a stunning dark luxury UI inspired by Linear, Vercel, and Raycast.
 

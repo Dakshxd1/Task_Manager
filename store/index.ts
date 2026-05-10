@@ -58,7 +58,10 @@ export const useStore = create<AppStore>((set, get) => ({
   addProject: async (p) => {
     const { user } = get()
     const { data } = await createProject({ ...p, owner_id: user?.id })
-    if (data) set(s => ({ projects: [...s.projects, data] }))
+    if (data) {
+      set(s => ({ projects: [...s.projects, data] }))
+      await get().loadData()
+    }
   },
 
   updateProject: async (id, u) => {

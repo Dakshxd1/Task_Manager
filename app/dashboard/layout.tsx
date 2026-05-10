@@ -34,10 +34,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const unread = notifications.filter(n => !n.is_read).length
 
   useEffect(() => {
-    const { loadData } = useStore.getState() as any
-    supabase.auth.getSession().then(({ data: { session } }: any) => {
-      if (!session) router.push('/auth')
-      else loadData()
+    supabase.auth.getSession().then(async ({ data: { session } }: any) => {
+      if (!session) {
+        router.push('/auth')
+        return
+      }
+      // load profile into store
+      const { data: profile } = await supabase
+        .from('profiles').select('*').eq('id', session.user.id).single()
+      if (profile) {
+        useStore.setState({ user: profile, isAuthenticated: true })
+      }
+      // load all data
+      await useStore.getState().loadData()
     })
   }, [])
 
